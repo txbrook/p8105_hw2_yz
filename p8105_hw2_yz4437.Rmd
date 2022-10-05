@@ -5,26 +5,152 @@ date: "2022-10-04"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
 ```
 
-## R Markdown
+### Problem 1
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+trans_ent = 
+  read_csv(
+    "data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",
+    col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>% 
+  janitor::clean_names() %>% 
+  select(
+    line, station_name, station_latitude, station_longitude, 
+    starts_with("route"), entry, exit_only, vending, entrance_type, 
+    ada) %>% 
+  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
 
-```{r cars}
-summary(cars)
+trans_ent %>% 
+  select(station_name, line) %>% 
+  distinct
+
+trans_ent %>% 
+  filter(ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+
+trans_ent %>% 
+  filter(vending == "NO") %>% 
+  pull(entry) %>% 
+  mean
+
+trans_ent %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A") %>% 
+  select(station_name, line) %>% 
+  distinct
+
+trans_ent %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A", ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+### Problem 2
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r problem2}
+
+Mr.trash_df = read_excel("data/Trash Wheel Collection Data.xlsx",
+      sheet = "Mr. Trash Wheel",
+      skip = 1, 
+      range = "A2:N549") %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = as.integer(round(sports_balls, digits = 0)))
+
+Mr.trash_df
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+
+ProTrash_df = read_excel("data/Trash Wheel Collection Data.xlsx",
+      sheet = "Professor Trash Wheel", 
+      skip = 1, 
+      range = "A2:M96") %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster)
+
+ProTrash_df
+
+```
+
+
+```{r}
+
+Mr.trash_df = mutate(Mr.trash_df, trash_wheel_name = "mr.") %>% 
+    mutate(
+    year = as.double(year)
+    ) 
+
+ProTrash_df = mutate(ProTrash_df, trash_wheel_name = "professor") 
+
+trash_wheel = full_join(Mr.trash_df, ProTrash_df)
+```
+
+### Problem 3
+```{r problem3_step1}
+
+Pols_month = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>%
+    janitor::clean_names() %>%
+    separate(mon,c('year', 'month','day'), sep = '-') %>%
+    mutate(
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day),
+    month = month.abb[month],
+    president = ifelse(prez_dem == 1,"dem","gop")
+    ) %>% 
+    select(-prez_dem, -prez_gop, -day)
+
+Pols_month
+
+```
+
+```{r problem3_step2}
+
+snp = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
+    janitor::clean_names() %>%
+    separate(date, c('month', 'day','year'), sep = '/') %>%
+    mutate(
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day),
+    month = month.abb[month],
+    year = ifelse(year < 22,year + 2000,year + 1900)
+    ) %>% 
+    arrange(year,month) %>% 
+    select(year,month,close)
+snp
+
+```
+
+```{r problem3_step3}
+  unemp = read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
+  select(year = Year, everything()) %>%
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month",
+    values_to = "unemployment"
+    )
+```
+
+```{r}
+snp_pols = left_join(Pols_month,snp,by = c("year","month"))
+result = left_join(snp_pols,unemp,by = c("year","month"))
+```
+
