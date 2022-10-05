@@ -479,9 +479,13 @@ trans_ent %&gt;%
 </div>
 <div id="problem-2" class="section level3">
 <h3>Problem 2</h3>
+<p>load data from <code>Mr. Trash Wheel</code> sheet from file
+<code>Trash-Wheel-Collection-Totals-7-2020-2.xlsx</code>. omit non-data
+entries by range, update variable names, omit rows that do not include
+dumpster-specific data, round the number of sports balls to the nearest
+integer and converts the result to an integer variable.</p>
 <pre class="r"><code>Mr.trash_df = read_excel(&quot;data/Trash Wheel Collection Data.xlsx&quot;,
       sheet = &quot;Mr. Trash Wheel&quot;,
-      skip = 1, 
       range = &quot;A2:N549&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
   drop_na(dumpster) %&gt;% 
@@ -505,9 +509,9 @@ Mr.trash_df</code></pre>
 ## #   glass_bottles &lt;dbl&gt;, grocery_bags &lt;dbl&gt;, chip_bags &lt;dbl&gt;,
 ## #   sports_balls &lt;int&gt;, homes_powered &lt;dbl&gt;, and abbreviated variable names
 ## #   ¹​volume_cubic_yards, ²​plastic_bottles, ³​polystyrene</code></pre>
+<p>similar process to <code>Professor Trash Wheel</code></p>
 <pre class="r"><code>ProTrash_df = read_excel(&quot;data/Trash Wheel Collection Data.xlsx&quot;,
       sheet = &quot;Professor Trash Wheel&quot;, 
-      skip = 1, 
       range = &quot;A2:M96&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
   drop_na(dumpster)
@@ -530,6 +534,11 @@ ProTrash_df</code></pre>
 ## #   glass_bottles &lt;dbl&gt;, grocery_bags &lt;dbl&gt;, chip_bags &lt;dbl&gt;,
 ## #   homes_powered &lt;dbl&gt;, and abbreviated variable names ¹​weight_tons,
 ## #   ²​volume_cubic_yards, ³​plastic_bottles, ⁴​polystyrene</code></pre>
+<p>add an additional variable to both datasets
+<code>trash_wheel_name</code> to keep track which trash wheel is and
+combine these two datasets. column type of <code>years</code> in
+<code>Mr.trash_df</code> is changed from character to double for same
+type in both dataframes.</p>
 <pre class="r"><code>Mr.trash_df = mutate(Mr.trash_df, trash_wheel_name = &quot;mr.&quot;) %&gt;% 
     mutate(
     year = as.double(year)
@@ -537,15 +546,27 @@ ProTrash_df</code></pre>
 
 ProTrash_df = mutate(ProTrash_df, trash_wheel_name = &quot;professor&quot;) 
 
-trash_wheel = full_join(Mr.trash_df, ProTrash_df)</code></pre>
+total_df = full_join(Mr.trash_df, ProTrash_df)</code></pre>
 <pre><code>## Joining, by = c(&quot;dumpster&quot;, &quot;month&quot;, &quot;year&quot;, &quot;date&quot;, &quot;weight_tons&quot;,
 ## &quot;volume_cubic_yards&quot;, &quot;plastic_bottles&quot;, &quot;polystyrene&quot;, &quot;cigarette_butts&quot;,
 ## &quot;glass_bottles&quot;, &quot;grocery_bags&quot;, &quot;chip_bags&quot;, &quot;homes_powered&quot;,
 ## &quot;trash_wheel_name&quot;)</code></pre>
+<p>the number of observations in the resulting dataset is 641, have key
+variables Trash Wheel name, dumpster number, date of trash collection,
+weight and volume , and 8 types of trash.</p>
+<p>The total weight of trash collected by Professor Trash Wheel is
+190.12 tons. The total number of sports balls collected by Mr. Trash
+Wheel in 2020 is 856.</p>
 </div>
 <div id="problem-3" class="section level3">
 <h3>Problem 3</h3>
-<pre class="r"><code>Pols_month = read_csv(file = &quot;./data/fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;%
+<p>separate variable <code>mon</code> into integer variables
+<code>year</code>, <code>month</code> and <code>day</code>. convert
+<code>month</code> type from number to month abbreviation. create a
+<code>president</code> variable taking values <code>gop</code> and
+<code>dem</code>, and remove <code>prez_dem</code>,
+<code>prez_gop</code> and <code>day</code> variables.</p>
+<pre class="r"><code>pols = read_csv(file = &quot;./data/fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;%
     janitor::clean_names() %&gt;%
     separate(mon,c(&#39;year&#39;, &#39;month&#39;,&#39;day&#39;), sep = &#39;-&#39;) %&gt;%
     mutate(
@@ -564,7 +585,7 @@ trash_wheel = full_join(Mr.trash_df, ProTrash_df)</code></pre>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>Pols_month</code></pre>
+<pre class="r"><code>pols</code></pre>
 <pre><code>## # A tibble: 822 × 9
 ##     year month gov_gop sen_gop rep_gop gov_dem sen_dem rep_dem president
 ##    &lt;int&gt; &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;    
@@ -579,6 +600,10 @@ trash_wheel = full_join(Mr.trash_df, ProTrash_df)</code></pre>
 ##  9  1947 Sep        23      51     253      23      45     198 dem      
 ## 10  1947 Oct        23      51     253      23      45     198 dem      
 ## # … with 812 more rows</code></pre>
+<p>separate variable <code>date</code> into integer variables
+<code>month</code>, <code>day</code>and <code>year</code>. arrange
+according to <code>year</code> and <code>month</code>, and move
+<code>year</code> and <code>month</code> to leading columns.</p>
 <pre class="r"><code>snp = read_csv(file = &quot;./data/fivethirtyeight_datasets/snp.csv&quot;) %&gt;%
     janitor::clean_names() %&gt;%
     separate(date, c(&#39;month&#39;, &#39;day&#39;,&#39;year&#39;), sep = &#39;/&#39;) %&gt;%
@@ -614,12 +639,16 @@ trash_wheel = full_join(Mr.trash_df, ProTrash_df)</code></pre>
 ##  9  1950 May    18.8
 ## 10  1950 Nov    19.5
 ## # … with 777 more rows</code></pre>
+<p>switch dataset from wide to long format. create variables
+<code>month</code>, values are month abbreviation from original column
+names and create variable <code>percent_of_unemployment</code> values
+are from sheet.</p>
 <pre class="r"><code>  unemp = read_csv(&quot;./data/fivethirtyeight_datasets/unemployment.csv&quot;) %&gt;%
   select(year = Year, everything()) %&gt;%
   pivot_longer(
     Jan:Dec,
     names_to = &quot;month&quot;,
-    values_to = &quot;unemployment&quot;
+    values_to = &quot;percent_of_unemployment&quot;
     )</code></pre>
 <pre><code>## Rows: 68 Columns: 13
 ## ── Column specification ────────────────────────────────────────────────────────
@@ -628,8 +657,23 @@ trash_wheel = full_join(Mr.trash_df, ProTrash_df)</code></pre>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>snp_pols = left_join(Pols_month,snp,by = c(&quot;year&quot;,&quot;month&quot;))
-result = left_join(snp_pols,unemp,by = c(&quot;year&quot;,&quot;month&quot;))</code></pre>
+<p>merging snp into pols, and merging unemployment into the result.</p>
+<pre class="r"><code>snp_pols = left_join(pols,snp, by = c(&quot;year&quot;, &quot;month&quot;))
+result = left_join(snp_pols,unemp, by = c(&quot;year&quot;, &quot;month&quot;))</code></pre>
+<p>Dataset <code>pols</code> has dimension of the dataset is 822 with 9,
+with year ranging from 1947 to 2015. It contains the number of
+republican/democratic in governors/senators/representatives on the
+associated date.</p>
+<p>Dataset <code>snp</code> has dimension of the dataset is 787 with 3,
+with year ranging from 1950 to 2015. It contains the closing values of
+the S&amp;P stock index on the associated date.</p>
+<p>Dataset <code>unemp</code> has dimension of the dataset is 816 with
+3, with year ranging from 1948 to 2015. It contains percentage of
+unemployment in that associated year and month.</p>
+<p>Dataset <code>result</code> has dimension of the dataset is 822 with
+11, with year ranging from 1947 to 2015. It contains number of certain
+party in government, S&amp;P stock index and unemployment rate that
+associated year and month in one dataset.</p>
 </div>
 
 

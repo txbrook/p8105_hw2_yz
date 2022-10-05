@@ -99,22 +99,17 @@ ProTrash_df = mutate(ProTrash_df, trash_wheel_name = "professor")
 
 total_df = full_join(Mr.trash_df, ProTrash_df)
 ```
-the number of observations in the resulting dataset is , and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of sports balls collected by Mr. Trash Wheel in 2020?
+the number of observations in the resulting dataset is `r nrow(total_df)`, have key variables  Trash Wheel name, dumpster number, date of trash collection, weight and volume , and 8 types of trash. 
 
-
-
-
-The dataset `trash_wheel` contains `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables, including the name of Trash Wheel, dumpster number, date of trash collection, the weight and volume of the total trash, and the number of 8 types of trash in the associated dumpster. 
-
-The total weight of trash collected by Professor Trash Wheel is `r sum(filter(trash_wheel, trash_wheel_name == "professor")$weight_tons)` tons.
-
-The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(filter(trash_wheel, trash_wheel_name == "mr.", year == 2020)$sports_balls)`.
+The total weight of trash collected by Professor Trash Wheel is `r sum(filter(total_df, trash_wheel_name == "professor")$weight_tons)` tons. The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(filter(total_df, trash_wheel_name == "mr.", year == 2020)$sports_balls)`.
 
 
 ### Problem 3
+
+separate variable `mon` into integer variables `year`, `month` and `day`. convert `month` type from number to month abbreviation. create a `president` variable taking values `gop` and `dem`, and remove `prez_dem`, `prez_gop` and `day` variables.
 ```{r problem3_step1}
 
-Pols_month = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>%
+pols = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>%
     janitor::clean_names() %>%
     separate(mon,c('year', 'month','day'), sep = '-') %>%
     mutate(
@@ -126,9 +121,11 @@ Pols_month = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %
     ) %>% 
     select(-prez_dem, -prez_gop, -day)
 
-Pols_month
+pols
 
 ```
+
+separate variable `date` into integer variables `month`, `day`and `year`. arrange according to `year` and `month`, and move `year` and `month` to leading columns.
 
 ```{r problem3_step2}
 
@@ -147,19 +144,27 @@ snp = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
 snp
 
 ```
-
+switch dataset from wide to long format. create variables `month`, values are month abbreviation from original column names and create variable `percent_of_unemployment` values are from sheet.
 ```{r problem3_step3}
   unemp = read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
   select(year = Year, everything()) %>%
   pivot_longer(
     Jan:Dec,
     names_to = "month",
-    values_to = "unemployment"
+    values_to = "percent_of_unemployment"
     )
 ```
 
+merging snp into pols, and merging unemployment into the result.
 ```{r}
-snp_pols = left_join(Pols_month,snp,by = c("year","month"))
-result = left_join(snp_pols,unemp,by = c("year","month"))
+snp_pols = left_join(pols,snp)
+result = left_join(snp_pols,unemp)
 ```
 
+Dataset `pols` has dimension of the dataset is `r nrow(pols)` with `r ncol(pols)`, with year ranging from `r min(pols$year)` to `r max(pols$year)`. It contains the number of republican/democratic in governors/senators/representatives on the associated date.
+
+Dataset `snp` has dimension of the dataset is `r nrow(snp)` with `r ncol(snp)`, with year ranging from `r min(snp$year)` to `r max(snp$year)`. It contains the closing values of the S&P stock index on the associated date.
+
+Dataset `unemp` has dimension of the dataset is `r nrow(unemp)` with `r ncol(unemp)`, with year ranging from `r min(unemp$year)` to `r max(unemp$year)`. It contains percentage of unemployment in that associated year and month.
+
+Dataset `result` has dimension of the dataset is `r nrow(result)` with `r ncol(result)`, with year ranging from `r min(result$year)` to `r max(result$year)`. It contains number of certain party in government, S&P stock index and unemployment rate that associated year and month in one dataset.
