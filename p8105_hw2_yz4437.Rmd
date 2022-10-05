@@ -139,12 +139,13 @@ snp
 switch dataset from wide to long format. create variables `month`, values are month abbreviation from original column names and create variable `percent_of_unemployment` values are from sheet.
 ```{r problem3_step3}
   unemp = read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
-  select(year = Year, everything()) %>%
-  pivot_longer(
+    pivot_longer(
     Jan:Dec,
     names_to = "month",
     values_to = "percent_of_unemployment"
-    )
+    )%>%
+    janitor::clean_names() %>% 
+    mutate(year = as.integer(year)) 
 ```
 
 merging snp into pols, and merging unemployment into the result.
@@ -153,10 +154,10 @@ snp_pols = left_join(pols,snp)
 result = left_join(snp_pols,unemp)
 ```
 
-Dataset `pols` has dimension `r nrow(pols)` with `r ncol(pols)`, with year ranging from `r min(pols$year)` to `r max(pols$year)`. It contains the number of republican/democratic in governors/senators/representatives on the associated date.
+Dataset `pols` has dimension `r nrow(pols)` with `r ncol(pols)`, with year range from `r min(pols$year)` to `r max(pols$year)`. It contains the number of republican/democratic in governors, senators, representatives and president on the associated date.
 
-Dataset `snp` has dimension `r nrow(snp)` with `r ncol(snp)`, with year ranging from `r min(snp$year)` to `r max(snp$year)`. It contains the closing values of the S&P stock index on the associated date.
+Dataset `snp` has dimension `r nrow(snp)` with `r ncol(snp)`, with year range from `r min(snp$year)` to `r max(snp$year)`. It contains the closing values of the S&P stock index on the associated date.
 
-Dataset `unemp` has dimension `r nrow(unemp)` with `r ncol(unemp)`, with year ranging from `r min(unemp$year)` to `r max(unemp$year)`. It contains percentage of unemployment in that associated year and month.
+Dataset `unemp` has dimension `r nrow(unemp)` with `r ncol(unemp)`, with year range from `r min(unemp$year)` to `r max(unemp$year)`. It contains percentage of unemployment in that associated year and month.
 
-Dataset `result` has dimension `r nrow(result)` with `r ncol(result)`, with year ranging from `r min(result$year)` to `r max(result$year)`. It contains number of certain party in government, S&P stock index and unemployment rate that associated year and month in one dataset.
+Dataset `result` has dimension `r nrow(result)` with `r ncol(result)`, with year range from `r min(result$year)` to `r max(result$year)`. It contains number of certain party in government, S&P stock index and unemployment rate that associated year and month in one dataset.
