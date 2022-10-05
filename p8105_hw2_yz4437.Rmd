@@ -2,7 +2,7 @@
 title: "p8105_hw2_yz4437"
 author: "Yuchen Zhang"
 date: "2022-10-04"
-output: html_document
+output: github_document
 ---
 
 ```{r load_libraries}
@@ -91,7 +91,7 @@ ProTrash_df = mutate(ProTrash_df, trash_wheel_name = "professor")
 
 total_df = full_join(Mr.trash_df, ProTrash_df)
 ```
-the number of observations in the resulting dataset is `r nrow(total_df)`, have key variables  Trash Wheel name, dumpster number, date of trash collection, weight and volume , and 8 types of trash. 
+the number of observations in the resulting dataset is `r nrow(total_df)`, have key variables Trash Wheel name, dumpster number, date of trash collection, weight and volume , and 8 types of trash. 
 
 The total weight of trash collected by Professor Trash Wheel is `r sum(filter(total_df, trash_wheel_name == "professor")$weight_tons)` tons. The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(filter(total_df, trash_wheel_name == "mr.", year == 2020)$sports_balls)`.
 
@@ -153,10 +153,10 @@ snp_pols = left_join(pols,snp)
 result = left_join(snp_pols,unemp)
 ```
 
-Dataset `pols` has dimension of the dataset is `r nrow(pols)` with `r ncol(pols)`, with year ranging from `r min(pols$year)` to `r max(pols$year)`. It contains the number of republican/democratic in governors/senators/representatives on the associated date.
+Dataset `pols` has dimension `r nrow(pols)` with `r ncol(pols)`, with year ranging from `r min(pols$year)` to `r max(pols$year)`. It contains the number of republican/democratic in governors/senators/representatives on the associated date.
 
-Dataset `snp` has dimension of the dataset is `r nrow(snp)` with `r ncol(snp)`, with year ranging from `r min(snp$year)` to `r max(snp$year)`. It contains the closing values of the S&P stock index on the associated date.
+Dataset `snp` has dimension `r nrow(snp)` with `r ncol(snp)`, with year ranging from `r min(snp$year)` to `r max(snp$year)`. It contains the closing values of the S&P stock index on the associated date.
 
-Dataset `unemp` has dimension of the dataset is `r nrow(unemp)` with `r ncol(unemp)`, with year ranging from `r min(unemp$year)` to `r max(unemp$year)`. It contains percentage of unemployment in that associated year and month.
+Dataset `unemp` has dimension `r nrow(unemp)` with `r ncol(unemp)`, with year ranging from `r min(unemp$year)` to `r max(unemp$year)`. It contains percentage of unemployment in that associated year and month.
 
-Dataset `result` has dimension of the dataset is `r nrow(result)` with `r ncol(result)`, with year ranging from `r min(result$year)` to `r max(result$year)`. It contains number of certain party in government, S&P stock index and unemployment rate that associated year and month in one dataset.
+Dataset `result` has dimension `r nrow(result)` with `r ncol(result)`, with year ranging from `r min(result$year)` to `r max(result$year)`. It contains number of certain party in government, S&P stock index and unemployment rate that associated year and month in one dataset.
