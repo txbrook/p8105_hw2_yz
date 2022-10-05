@@ -78,7 +78,7 @@ ProTrash_df = read_excel("data/Trash Wheel Collection Data.xlsx",
 
 ProTrash_df
 ```
-add an additional variable to both datasets `trash_wheel_name` to keep track which trash wheel is and combine these two datasets. column type of `years` in `Mr.trash_df` is changed from character to double for same type in both dataframes. 
+add an additional variable to both datasets `trash_wheel_name` to keep track which trash wheel is and combine these two datasets. column type of `years` in `Mr.trash_df` is changed from character to double for same type in both datasets. 
 
 ```{r}
 
