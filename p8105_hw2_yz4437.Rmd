@@ -61,11 +61,11 @@ trans_ent %>%
 
 ### Problem 2
 
+load data from `Mr. Trash Wheel` sheet from file `Trash-Wheel-Collection-Totals-7-2020-2.xlsx`.  omit non-data entries by range, update variable names, omit rows that do not include dumpster-specific data, round the number of sports balls to the nearest integer and converts the result to an integer variable.
 ```{r problem2}
 
 Mr.trash_df = read_excel("data/Trash Wheel Collection Data.xlsx",
       sheet = "Mr. Trash Wheel",
-      skip = 1, 
       range = "A2:N549") %>% 
   janitor::clean_names() %>% 
   drop_na(dumpster) %>% 
@@ -75,20 +75,18 @@ Mr.trash_df
 
 ```
 
-
+similar process to `Professor Trash Wheel`
 ```{r}
 
 ProTrash_df = read_excel("data/Trash Wheel Collection Data.xlsx",
       sheet = "Professor Trash Wheel", 
-      skip = 1, 
       range = "A2:M96") %>% 
   janitor::clean_names() %>% 
   drop_na(dumpster)
 
 ProTrash_df
-
 ```
-
+add an additional variable to both datasets `trash_wheel_name` to keep track which trash wheel is and combine these two datasets. column type of `years` in `Mr.trash_df` is changed from character to double for same type in both dataframes. 
 
 ```{r}
 
@@ -99,8 +97,19 @@ Mr.trash_df = mutate(Mr.trash_df, trash_wheel_name = "mr.") %>%
 
 ProTrash_df = mutate(ProTrash_df, trash_wheel_name = "professor") 
 
-trash_wheel = full_join(Mr.trash_df, ProTrash_df)
+total_df = full_join(Mr.trash_df, ProTrash_df)
 ```
+the number of observations in the resulting dataset is , and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of sports balls collected by Mr. Trash Wheel in 2020?
+
+
+
+
+The dataset `trash_wheel` contains `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables, including the name of Trash Wheel, dumpster number, date of trash collection, the weight and volume of the total trash, and the number of 8 types of trash in the associated dumpster. 
+
+The total weight of trash collected by Professor Trash Wheel is `r sum(filter(trash_wheel, trash_wheel_name == "professor")$weight_tons)` tons.
+
+The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(filter(trash_wheel, trash_wheel_name == "mr.", year == 2020)$sports_balls)`.
+
 
 ### Problem 3
 ```{r problem3_step1}
