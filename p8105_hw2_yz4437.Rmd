@@ -13,6 +13,7 @@ library(readxl)
 ### Problem 1
 
 
+Read and clean the data.he process begins with data import, updates variable names, and selects the columns.update `entry` from `yes` / `no` to a logical variable. 
 ```{r}
 trans_ent = 
   read_csv(
@@ -23,23 +24,22 @@ trans_ent =
     line, station_name, station_latitude, station_longitude, 
     starts_with("route"), entry, exit_only, vending, entrance_type, 
     ada) %>% 
-  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
+  mutate(
+    entry = ifelse(entry == "YES", TRUE, FALSE)
+    )
+```
+these data are not "tidy":  we need to convert `route` variables from wide to long format. The dimension of the resulting dataset is `r nrow(trans_ent)` x `r ncol(trans_ent)`.
 
-trans_ent %>% 
-  select(station_name, line) %>% 
-  distinct
+```{r}
+dist_station = distinct(trans_ent,line, station_name,.keep_all = T)
+```
+There are `r nrow(dist_station)` distinct stations.  
+`r nrow(filter(dist_station,ada==T))` stations are ADA compliant. 
+`r round(nrow(filter(trans_ent,vending == "NO", entry == T))/nrow(trans_ent),2) station entrances / exits without vending allow entrance.
 
-trans_ent %>% 
-  filter(ada == TRUE) %>% 
-  select(station_name, line) %>% 
-  distinct
-
-trans_ent %>% 
-  filter(vending == "NO") %>% 
-  pull(entry) %>% 
-  mean
-
-trans_ent %>% 
+```{r}
+trans_ent_ref = 
+  trans_ent %>% 
   pivot_longer(
     route1:route11,
     names_to = "route_num",
@@ -47,16 +47,8 @@ trans_ent %>%
   filter(route == "A") %>% 
   select(station_name, line) %>% 
   distinct
-
-trans_ent %>% 
-  pivot_longer(
-    route1:route11,
-    names_to = "route_num",
-    values_to = "route") %>% 
-  filter(route == "A", ada == TRUE) %>% 
-  select(station_name, line) %>% 
-  distinct
 ```
+There are `r nrow(trans_ent)` stations serving the A train, and `r nrow(filter(trans_ent, ada==T))` of them are ADA compliant.
 
 
 ### Problem 2

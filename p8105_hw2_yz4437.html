@@ -375,6 +375,9 @@ display: none;
 <pre class="r"><code>library(readxl)</code></pre>
 <div id="problem-1" class="section level3">
 <h3>Problem 1</h3>
+<p>Read and clean the data.he process begins with data import, updates
+variable names, and selects the columns.update <code>entry</code> from
+<code>yes</code> / <code>no</code> to a logical variable.</p>
 <pre class="r"><code>trans_ent = 
   read_csv(
     &quot;data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv&quot;,
@@ -384,49 +387,19 @@ display: none;
     line, station_name, station_latitude, station_longitude, 
     starts_with(&quot;route&quot;), entry, exit_only, vending, entrance_type, 
     ada) %&gt;% 
-  mutate(entry = ifelse(entry == &quot;YES&quot;, TRUE, FALSE))
-
-trans_ent %&gt;% 
-  select(station_name, line) %&gt;% 
-  distinct</code></pre>
-<pre><code>## # A tibble: 465 × 2
-##    station_name             line    
-##    &lt;chr&gt;                    &lt;chr&gt;   
-##  1 25th St                  4 Avenue
-##  2 36th St                  4 Avenue
-##  3 45th St                  4 Avenue
-##  4 53rd St                  4 Avenue
-##  5 59th St                  4 Avenue
-##  6 77th St                  4 Avenue
-##  7 86th St                  4 Avenue
-##  8 95th St                  4 Avenue
-##  9 9th St                   4 Avenue
-## 10 Atlantic Av-Barclays Ctr 4 Avenue
-## # … with 455 more rows</code></pre>
-<pre class="r"><code>trans_ent %&gt;% 
-  filter(ada == TRUE) %&gt;% 
-  select(station_name, line) %&gt;% 
-  distinct</code></pre>
-<pre><code>## # A tibble: 84 × 2
-##    station_name                   line           
-##    &lt;chr&gt;                          &lt;chr&gt;          
-##  1 Atlantic Av-Barclays Ctr       4 Avenue       
-##  2 DeKalb Av                      4 Avenue       
-##  3 Pacific St                     4 Avenue       
-##  4 Grand Central                  42nd St Shuttle
-##  5 34th St                        6 Avenue       
-##  6 47-50th Sts Rockefeller Center 6 Avenue       
-##  7 Church Av                      6 Avenue       
-##  8 21st St                        63rd Street    
-##  9 Lexington Av                   63rd Street    
-## 10 Roosevelt Island               63rd Street    
-## # … with 74 more rows</code></pre>
-<pre class="r"><code>trans_ent %&gt;% 
-  filter(vending == &quot;NO&quot;) %&gt;% 
-  pull(entry) %&gt;% 
-  mean</code></pre>
-<pre><code>## [1] 0.3770492</code></pre>
-<pre class="r"><code>trans_ent %&gt;% 
+  mutate(
+    entry = ifelse(entry == &quot;YES&quot;, TRUE, FALSE)
+    )</code></pre>
+<p>these data are not “tidy”: we need to convert <code>route</code>
+variables from wide to long format. The dimension of the resulting
+dataset is 1868 x 20.</p>
+<pre class="r"><code>dist_station = distinct(trans_ent,line, station_name,.keep_all = T)</code></pre>
+<p>There are 465 distinct stations.<br />
+84 stations are ADA compliant. `r round(nrow(filter(trans_ent,vending ==
+“NO”, entry == T))/nrow(trans_ent),2) station entrances / exits without
+vending allow entrance.</p>
+<pre class="r"><code>trans_ent_ref = 
+  trans_ent %&gt;% 
   pivot_longer(
     route1:route11,
     names_to = &quot;route_num&quot;,
@@ -434,48 +407,8 @@ trans_ent %&gt;%
   filter(route == &quot;A&quot;) %&gt;% 
   select(station_name, line) %&gt;% 
   distinct</code></pre>
-<pre><code>## # A tibble: 60 × 2
-##    station_name                  line           
-##    &lt;chr&gt;                         &lt;chr&gt;          
-##  1 Times Square                  42nd St Shuttle
-##  2 125th St                      8 Avenue       
-##  3 145th St                      8 Avenue       
-##  4 14th St                       8 Avenue       
-##  5 168th St - Washington Heights 8 Avenue       
-##  6 175th St                      8 Avenue       
-##  7 181st St                      8 Avenue       
-##  8 190th St                      8 Avenue       
-##  9 34th St                       8 Avenue       
-## 10 42nd St                       8 Avenue       
-## # … with 50 more rows</code></pre>
-<pre class="r"><code>trans_ent %&gt;% 
-  pivot_longer(
-    route1:route11,
-    names_to = &quot;route_num&quot;,
-    values_to = &quot;route&quot;) %&gt;% 
-  filter(route == &quot;A&quot;, ada == TRUE) %&gt;% 
-  select(station_name, line) %&gt;% 
-  distinct</code></pre>
-<pre><code>## # A tibble: 17 × 2
-##    station_name                  line            
-##    &lt;chr&gt;                         &lt;chr&gt;           
-##  1 14th St                       8 Avenue        
-##  2 168th St - Washington Heights 8 Avenue        
-##  3 175th St                      8 Avenue        
-##  4 34th St                       8 Avenue        
-##  5 42nd St                       8 Avenue        
-##  6 59th St                       8 Avenue        
-##  7 Inwood - 207th St             8 Avenue        
-##  8 West 4th St                   8 Avenue        
-##  9 World Trade Center            8 Avenue        
-## 10 Times Square-42nd St          Broadway        
-## 11 59th St-Columbus Circle       Broadway-7th Ave
-## 12 Times Square                  Broadway-7th Ave
-## 13 8th Av                        Canarsie        
-## 14 Franklin Av                   Franklin        
-## 15 Euclid Av                     Fulton          
-## 16 Franklin Av                   Fulton          
-## 17 Howard Beach                  Rockaway</code></pre>
+<p>There are 1868 stations serving the A train, and 468 of them are ADA
+compliant.</p>
 </div>
 <div id="problem-2" class="section level3">
 <h3>Problem 2</h3>
@@ -658,8 +591,10 @@ are from sheet.</p>
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>merging snp into pols, and merging unemployment into the result.</p>
-<pre class="r"><code>snp_pols = left_join(pols,snp, by = c(&quot;year&quot;, &quot;month&quot;))
-result = left_join(snp_pols,unemp, by = c(&quot;year&quot;, &quot;month&quot;))</code></pre>
+<pre class="r"><code>snp_pols = left_join(pols,snp)</code></pre>
+<pre><code>## Joining, by = c(&quot;year&quot;, &quot;month&quot;)</code></pre>
+<pre class="r"><code>result = left_join(snp_pols,unemp)</code></pre>
+<pre><code>## Joining, by = c(&quot;year&quot;, &quot;month&quot;)</code></pre>
 <p>Dataset <code>pols</code> has dimension of the dataset is 822 with 9,
 with year ranging from 1947 to 2015. It contains the number of
 republican/democratic in governors/senators/representatives on the
